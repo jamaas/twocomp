@@ -1,0 +1,59 @@
+// Chemical reaction of Robertson, classical 3 substrate chemical reaction.
+// This ode is stiff and is used to test the automatic stiffness detection in dopri5 and/or dop853.
+// This is an explicit Runge-Kutta method of order 8(5,3) due to Dormand & Prince
+//(with stepsize control and dense output). like a heavy duty rk4!
+
+// According to Baumgartner and Szmolyan 2024 standard values of kvalues is
+// k1 = 4.0 x 10-2
+//k2  = 3 x 10+7
+//k3 = 1x 10+4
+
+/* arguments for dop853 algorithm
+ f - Structure implementing the System trait
+x - Initial value of the independent variable (usually time)
+x_end - Final value of the independent variable
+dx - Increment in the dense output. This argument has no effect if the output type is Sparse
+y - Initial value of the dependent variable(s)
+rtol - Relative tolerance used in the computation of the adaptive step size
+atol - Absolute tolerance used in the computation of the adaptive step size
+ */
+
+use ode_solvers::dop853::*;
+use ode_solvers::*;
+
+type State = Vector3<f64>;
+type Time = f64;
+
+fn main() {
+    // Initial state. State values of  X, Y, and Z and t0
+    let y0 = State::new(1.0, 0.0, 0.0);
+
+    // Create the structure containing the ODEs.
+    let system = ChemicalReaction;
+
+    // Create a stepper and run the integration.
+    let mut stepper = Dop853::new(system, 0., 0.3, 0.3, y0, 1.0e-2, 1.0e-6);
+    let results = stepper.integrate();
+
+    // Handle result.
+    match results {
+        Ok(stats) => println!("{}", stats),
+        Err(e) => println!("An error occured: {}", e),
+    }
+}
+
+struct ChemicalReaction;
+
+impl ode_solvers::System<f64, State> for ChemicalReaction {
+    fn system(&self, _: Time, y: &State, dy: &mut State) {
+	// x = -k1x  +  k3yz
+	dy[0] = -0.04 * y[0] + 10000. * y[1] * y[2];
+        //  original dy[1] = 0.04 * y[0] - 10000. * y[1] * y[2] - 3. * 10_f64.powi(7) * y[1] * y[1];
+	//corrected form like paper  y  = k1x  - k2y2 - k3yz 
+	dy[1] = 0.04 * y[0] - 3. * 10_f64.powi(7) * y[1] * y[1] - 10000. * y[1] * y[2] ;
+	//z  = k2y2 	
+        dy[2] = 3. * 10_f64.powi(7) * y[1] * y[1];
+	let total = y[0]+y[1]+y[2];
+	println!("PoolSizes  {}, {},{},{}",   y[0],y[1],y[2],total);
+    }
+}
