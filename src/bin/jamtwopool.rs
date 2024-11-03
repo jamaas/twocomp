@@ -68,6 +68,6 @@ impl ode_solvers::System<f64, State> for TwoPool {
 	// dy[1] = (FAB  = VAB /  (1.0 + (KAB / (y[0] / 20)))) - (FBA = VBA /  (1.0 + (KBA / (y[1] / 25)))) -
 	//     (FBO  = VBO /  (1 + (KBO / (y[1] / 25.0)))) 
 	dy[1] =  (18.0 /  (1.0 + (0.32 / (y[0] / 25.0)))) -   (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) - (8.0 / ( 1.0 + ( 0.31 /(y[1]/25.0)))) ;  		let total = y[0]+y[1];
-	println!("PoolSizes  {}, {},{}",   y[0],y[1],total);
+	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);
     }
 }
