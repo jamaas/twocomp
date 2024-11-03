@@ -3,27 +3,28 @@
 // This is an explicit Runge-Kutta method of order 8(5,3) due to Dormand & Prince
 //(with stepsize control and dense output). like a heavy duty rk4!
 
-/* This model follows the structure shown in the diagram called
- "Two Pool Model.pdf
-Size of Pool A = 20
-Size of Pool B  = 25
-Qantity of solute in pool A at t0 = 6
-Qantity of solute in pool B at t0 = 9
-Flux into pool A from outside FOA = 7
+// This model follows the structure shown in the diagram called
+// "Two Pool Model.pdf
+const SA:f64=20.0;
+const SB:f64= 25.0;
+const QA0:f64= 6.0;
+const QB0:f64=9.0;
+const FOA:f64=7.0;
+
+/*
 For HMM equations:
 Flux from Pool A to B
 FAB  = VAB /  (1 + (KAB / (y[0] / 20)))
 FBA = VBA /  (1 + (KBA / (y[1] / 25)))
 FBO = VBO /  (1 + (KBO / (y[1] / 25)))
+*/
 
-VAB = 18
-VBA = 13
-VBO = 8
-
-KAB = 0.32
-KBA =  0.36
-KB0  =  0.31
- */
+const VAB: f64 = 18.0;
+const VBA: f64 = 13.0;
+const VBO: f64 = 8.0;
+const KAB: f64 = 0.32;
+const KBA: f64 = 0.36;
+const KBO: f64 = 0.31;
 
 /* arguments for dop853 algorithm
  f - Structure implementing the System trait
@@ -43,7 +44,7 @@ type Time = f64;
 
 fn main() {
     // Initial state. State values of  X, Y, and Z and t0
-    let y0 = State::new(6.0, 9.0);
+    let y0 = State::new(QA0, QB0);
 
     // Create the structure containing the ODEs.
     let system = TwoPool;
@@ -63,11 +64,13 @@ struct TwoPool;
 
 impl ode_solvers::System<f64, State> for TwoPool {
     fn system(&self, _: Time, y: &State, dy: &mut State) {
-	// dy[0] = FOA - (FAB  = VAB /  (1.0 + (KAB / (y[0] / 20)))) + (FBA = VBA /  (1.0 + (KBA / (y[1] / 25))))
-	dy[0] = 7.0 - ( 18.0 /  (1.0 + (0.32 / (y[0] / 20.0)))) + (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) ;
-	// dy[1] = (FAB  = VAB /  (1.0 + (KAB / (y[0] / 20)))) - (FBA = VBA /  (1.0 + (KBA / (y[1] / 25)))) -
-	//     (FBO  = VBO /  (1 + (KBO / (y[1] / 25.0)))) 
-	dy[1] =  (18.0 /  (1.0 + (0.32 / (y[0] / 25.0)))) -   (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) - (8.0 / ( 1.0 + ( 0.31 /(y[1]/25.0)))) ;  		let total = y[0]+y[1];
+	dy[0] = FOA - ( VAB /  (1.0 + (KAB / (y[0] / SA)))) + (VBA /  (1.0 + (KBA / (y[1] / SB))));
+	//dy[0] = 7.0 - ( VAB /  (1.0 + (0.32 / (y[0] / 20.0)))) + (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) ;
+	dy[1] = (VAB /  (1.0 + (KAB / (y[0] / SA)))) - (VBA /  (1.0 + (KBA / (y[1] / SB)))) -
+	(VBO /  (1.0 + (KBO / (y[1] / SB)))); 
+	//dy[1] =  (18.0 /  (1.0 + (0.32 / (y[0] / 25.0)))) -   (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) -
+	//(8.0 / ( 1.0 + ( 0.31 /(y[1]/25.0)))) ;
+	let total = y[0]+y[1];
 	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);
     }
 }
