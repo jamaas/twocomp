@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 ode_solvers = "0.5.0"
+gnuplot = "0.0.44"
+image = "0.25.4"
+piston2d-graphics = "0.45.0"

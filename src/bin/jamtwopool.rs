@@ -3,6 +3,11 @@
 // This is an explicit Runge-Kutta method of order 8(5,3) due to Dormand & Prince
 //(with stepsize control and dense output). like a heavy duty rk4!
 
+// setup stuff for graphs from SIR model
+//use gnuplot::{AxesCommon, Caption, Color, Figure, Graph};
+//extern crate graphics;
+//extern crate image;
+
 // This model follows the structure shown in the diagram called
 // "Two Pool Model.pdf
 const SA:f64=20.0;
@@ -10,14 +15,6 @@ const SB:f64= 25.0;
 const QA0:f64= 6.0;
 const QB0:f64=9.0;
 const FOA:f64=7.0;
-
-/*
-For HMM equations:
-Flux from Pool A to B
-FAB  = VAB /  (1 + (KAB / (y[0] / 20)))
-
-
-*/
 
 const VAB: f64 = 18.0;
 const VBA: f64 = 13.0;
@@ -50,7 +47,9 @@ fn main() {
 
     // Create a stepper and run the integration.
 //    let mut stepper = Dop853::new(system, 0., 10.0, 0.01, y0, 1.0e-2, 1.0e-6);
-    let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-2);    
+    let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-1);
+    //let mut fg = init_graph();
+
     let results = stepper.integrate();
 
     // Handle result.
@@ -88,3 +87,32 @@ fn hmm(vm:f64,km:f64,con:f64) -> f64{
     let flux:f64 = vm / (1.0 + (km /con ));
     return flux;
 }
+
+// Initial graph drawing , again from SIR model
+/*fn init_graph() -> Figure {
+    let mut  fg = Figure::new();
+    fg.axes2d()
+        .set_title("Pool A Conc", &[])
+        .set_legend(Graph(1.0), Graph(1.0), &[], &[])
+        .set_x_label("Time", &[])
+        .set_y_label("Pool Conc", &[]);
+    // fg.set_terminal(&"pngcairo", &"test2.png");
+    fg.show();
+    fg
+}
+*/
+
+// update graph as it proceeds, from SIR model
+
+/*
+
+//fn update_graph(fg: &mut Figure, s: &[f32], i: &[f32], r: &[f32], d: &[f32], dt: f32) {
+fn update_graph(fg: &mut Figure, con_a: &[f64], con_b: &[f64],  dt: f64) {    
+    let x_axis: &Vec<f64> = &(1..=con_a.len() as i64).map(|x| x as f64 * dt).collect();
+    fg.clear_axes();
+    fg.axes2d()
+        .lines(x_axis, con_a, &[Caption("Con A"), Color("blue")])
+        .lines(x_axis, con_b, &[Caption("Con B"), Color("red")]);
+    fg.show();
+}
+*/
