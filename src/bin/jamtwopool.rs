@@ -66,11 +66,20 @@ impl ode_solvers::System<f64, State> for TwoPool {
     fn system(&self, _: Time, y: &State, dy: &mut State) {
 	dy[0] = FOA - ( VAB /  (1.0 + (KAB / (y[0] / SA)))) + (VBA /  (1.0 + (KBA / (y[1] / SB))));
 	//dy[0] = 7.0 - ( VAB /  (1.0 + (0.32 / (y[0] / 20.0)))) + (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) ;
-	dy[1] = (VAB /  (1.0 + (KAB / (y[0] / SA)))) - (VBA /  (1.0 + (KBA / (y[1] / SB)))) -
-	(VBO /  (1.0 + (KBO / (y[1] / SB)))); 
+
+
+	//dy[1] = (VAB /  (1.0 + (KAB / (y[0] / SA)))) - (VBA /  (1.0 + (KBA / (y[1] / SB)))) -
+	//    (VBO /  (1.0 + (KBO / (y[1] / SB))));
+	dy[1] = hmm(VAB,KAB,y[0],SA) - hmm(VBA,KBA,y[1],SB) - hmm(VBO,KBO,y[1],SB);
 	//dy[1] =  (18.0 /  (1.0 + (0.32 / (y[0] / 25.0)))) -   (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) -
 	//(8.0 / ( 1.0 + ( 0.31 /(y[1]/25.0)))) ;
 	let total = y[0]+y[1];
 	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);
     }
+}
+
+// HMM equation function for fluxes
+fn hmm(vm:f64,km:f64,qu:f64,si:f64) -> f64{
+    let flux:f64 = vm / (1.0 + (km / (qu/si)));
+    return flux;
 }
