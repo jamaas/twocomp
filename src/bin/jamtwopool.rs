@@ -15,8 +15,8 @@ const FOA:f64=7.0;
 For HMM equations:
 Flux from Pool A to B
 FAB  = VAB /  (1 + (KAB / (y[0] / 20)))
-FBA = VBA /  (1 + (KBA / (y[1] / 25)))
-FBO = VBO /  (1 + (KBO / (y[1] / 25)))
+
+
 */
 
 const VAB: f64 = 18.0;
@@ -26,17 +26,16 @@ const KAB: f64 = 0.32;
 const KBA: f64 = 0.36;
 const KBO: f64 = 0.31;
 
-/* arguments for dop853 algorithm
+/* arguments for Rk4 algorithm
  f - Structure implementing the System trait
 x - Initial value of the independent variable (usually time)
-x_end - Final value of the independent variable
-dx - Increment in the dense output. This argument has no effect if the output type is Sparse
 y - Initial value of the dependent variable(s)
-rtol - Relative tolerance used in the computation of the adaptive step size
-atol - Absolute tolerance used in the computation of the adaptive step size
+x_end - Final value of the independent variable
+step_size - step size used in method
  */
 
-use ode_solvers::dop853::*;
+//use ode_solvers::dop853::*;
+use ode_solvers::rk4::*;
 use ode_solvers::*;
 
 type State = Vector2<f64>;
@@ -50,7 +49,8 @@ fn main() {
     let system = TwoPool;
 
     // Create a stepper and run the integration.
-    let mut stepper = Dop853::new(system, 0., 10.0, 0.01, y0, 1.0e-2, 1.0e-6);
+//    let mut stepper = Dop853::new(system, 0., 10.0, 0.01, y0, 1.0e-2, 1.0e-6);
+    let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-2);    
     let results = stepper.integrate();
 
     // Handle result.
@@ -64,22 +64,27 @@ struct TwoPool;
 
 impl ode_solvers::System<f64, State> for TwoPool {
     fn system(&self, _: Time, y: &State, dy: &mut State) {
-	dy[0] = FOA - ( VAB /  (1.0 + (KAB / (y[0] / SA)))) + (VBA /  (1.0 + (KBA / (y[1] / SB))));
-	//dy[0] = 7.0 - ( VAB /  (1.0 + (0.32 / (y[0] / 20.0)))) + (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) ;
+	//FAB  = VAB /  (1 + (KAB / (y[0] / SA)))
+	//FBA = VBA /  (1 + (KBA / (y[1] / SB)))
+	//FBO = VBO /  (1 + (KBO / (y[1] / SB)))
 
+	let  con_a = y[0] / SA;
+	let  con_b = y[1] / SB;	
 
-	//dy[1] = (VAB /  (1.0 + (KAB / (y[0] / SA)))) - (VBA /  (1.0 + (KBA / (y[1] / SB)))) -
-	//    (VBO /  (1.0 + (KBO / (y[1] / SB))));
-	dy[1] = hmm(VAB,KAB,y[0],SA) - hmm(VBA,KBA,y[1],SB) - hmm(VBO,KBO,y[1],SB);
-	//dy[1] =  (18.0 /  (1.0 + (0.32 / (y[0] / 25.0)))) -   (13.0 / ( 1.0 + ( 0.36 /(y[1]/25.0)))) -
-	//(8.0 / ( 1.0 + ( 0.31 /(y[1]/25.0)))) ;
+	// dA/dt = FOA + FBA  - FAB
+	//dy[0] = FOA + hmm(  VBA, KBA, y[1],SB) - hmm(VAB,KAB,y[0],SA);
+	dy[0] = FOA + hmm(  VBA, KBA, con_b) - hmm(VAB,KAB,con_a);
+
+	//dB/dt = FAB - FBA - FBO
+	dy[1] = hmm(VAB,KAB,con_a) - hmm(VBA,KBA,con_b) - hmm(VBO,KBO,con_b);
+
 	let total = y[0]+y[1];
 	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);
     }
 }
 
 // HMM equation function for fluxes
-fn hmm(vm:f64,km:f64,qu:f64,si:f64) -> f64{
-    let flux:f64 = vm / (1.0 + (km / (qu/si)));
+fn hmm(vm:f64,km:f64,con:f64) -> f64{
+    let flux:f64 = vm / (1.0 + (km /con ));
     return flux;
 }
