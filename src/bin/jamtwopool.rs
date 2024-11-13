@@ -9,7 +9,8 @@ const SA:f64=20.0;
 const SB:f64= 25.0;
 const QA0:f64= 6.0;
 const QB0:f64=9.0;
-const FOA:f64=7.0;
+const QT0:f64=15.0;
+ const FOA:f64=7.0;
 
 const VAB: f64 = 18.0;
 const VBA: f64 = 13.0;
@@ -27,13 +28,14 @@ step_size - step size used in method */
 
 use ode_solvers::rk4::*;
 use ode_solvers::*;
+use gnuplot::*;
 
-type State = Vector2<f64>;
+type State = Vector3<f64>;
 type Time = f64;
 
 fn main() {
     // Initial state. State values of  X, Y, and Z and t0
-    let y0 = State::new(QA0, QB0);
+    let y0 = State::new(QA0, QB0, QT0);
 
     // Create the structure containing the ODEs.
     let system = TwoPool;
@@ -41,7 +43,20 @@ fn main() {
     // Create a stepper and run the integration.
     let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-1);
 
-    let results = stepper.integrate();
+    let  results = stepper.integrate();
+
+    let  (t,  y_out) = stepper.results().get();
+
+ //   y_out[2] = y_out[0] + y_out[1];
+
+    let mut fg = Figure::new();
+    fg.axes2d()
+	.lines_points(t.iter(), y_out.iter().map(|y| y[0]), &[Caption("A")])
+	.lines_points(t.iter(), y_out.iter().map(|y| y[1]), &[Caption("B")]);
+	//.lines_points(t.iter(), y_out.iter().map(|y| y[2]), &[Caption("T")]);	
+    fg.save_to_pdf("out.pdf", 4., 3.).unwrap();
+
+    
 
     // Handle result.
     match results {
@@ -57,21 +72,18 @@ impl ode_solvers::System<f64, State> for TwoPool {
 	let  con_a = y[0] / SA;
 	let  con_b = y[1] / SB;	
 
-	let FAB  = VAB /  (1.0 + (KAB / con_a));
-	let FBA = VBA /  (1.0 + (KBA / con_b));
-	let FBO = VBO /  (1.0 + (KBO / con_b));
+	let fab  = VAB /  (1.0 + (KAB / con_a));
+	let fba = VBA /  (1.0 + (KBA / con_b));
+	let fbo = VBO /  (1.0 + (KBO / con_b));
 
-	// dA/dt = FOA + FBA  - FAB
-	//dy[0] = FOA + hmm(  VBA, KBA, y[1],SB) - hmm(VAB,KAB,y[0],SA);
-//	dy[0] = FOA + hmm(  VBA, KBA, con_b) - hmm(VAB,KAB,con_a);
-	dy[0] = FOA + FBA - FAB;	
+	dy[0] = FOA + fba - fab;
+	dy[1] = fab - fba - fbo;
 
-	//dB/dt = FAB - FBA - FBO
-//	dy[1] = hmm(VAB,KAB,con_a) - hmm(VBA,KBA,con_b) - hmm(VBO,KBO,con_b);
-	dy[1] = FAB - FBA - FBO;	
+	let total = y[0] + y[1];
 
-	let total = y[0]+y[1];
-	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);
+//	&y[2]=y[0]+y[1];
+	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);	
+//	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], y[2]);	
     }
 }
 
@@ -80,7 +92,7 @@ fn hmm(vm:f64,km:f64,con:f64) -> f64{
     let flux:f64 = vm / (1.0 + (km /con ));
     return flux;
 }
- */
+*/ 
 
 // Initial graph drawing , again from SIR model
 /*fn init_graph() -> Figure {
@@ -94,8 +106,10 @@ fn hmm(vm:f64,km:f64,con:f64) -> f64{
     fg.show();
     fg
 }
+ */
 
 
+/*
 // update graph as it proceeds, from SIR model
 
 //fn update_graph(fg: &mut Figure, s: &[f32], i: &[f32], r: &[f32], d: &[f32], dt: f32) {
