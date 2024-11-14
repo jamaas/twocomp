@@ -1,16 +1,33 @@
-/* JAM first attempt at a two pool model with HMM kinetics in Rust
-I'll  use  rk4 integration algorithm only because it is what I used to
-use and it worked!  These systems are usually not stiff, I suspect
- of the forgiving nature of the HMM equation*/
+/* JAM first attempt at a toy two pool model with HMM kinetics in
+ Rust.  This generalised model should be expanadable to any number of
+ pools and interactions.  I'll use rk4 integration algorithm only
+ because it is what I have used historically and it worked!  These
+ biological systems, comprised of Henri-Michaelis-Menten (HMM) kinetic
+ equations are usually not stiff.  This model follows the structure of
+the accompanying diagram called "Two Pool Model.pdf */
 
-// This model follows the structure shown in the diagram called
-// "Two Pool Model.pdf
+/* Aknowlegements to Dr. Pavel Sountsov for help with the graphing,
+ * Dr. Nikhil Suresh for help with compartmental model structures in
+ * Rust, and Dr. Sylvain Renevey for the ode_solver crate */
+
+// First produced by JAM in Norwich UK on 14/11/2024
+// Last updated on 14/11/2024
+
+//Declaration of initial pool sizes and flux rates
+
 const SA:f64=20.0;
 const SB:f64= 25.0;
 const QA0:f64= 6.0;
 const QB0:f64=9.0;
 const QT0:f64=15.0;
  const FOA:f64=7.0;
+
+/* Declaration of kinetic constants for the HMM equations.  A V12
+  variable refers to a VMax for the equation describing a flux from
+  pool "1" to pool "2".  A K12 variable refers to the "affinity
+  constant" for the equation describing a flux from pool "1" to pool
+  "2".
+ */
 
 const VAB: f64 = 18.0;
 const VBA: f64 = 13.0;
@@ -19,17 +36,15 @@ const KAB: f64 = 0.32;
 const KBA: f64 = 0.36;
 const KBO: f64 = 0.31;
 
-/* arguments for Rk4 algorithm
- f - Structure implementing the System trait
-x - Initial value of the independent variable (usually time)
-y - Initial value of the dependent variable(s)
-x_end - Final value of the independent variable
-step_size - step size used in method */
-
+// declare the external Rust crates required
 use ode_solvers::rk4::*;
 use ode_solvers::*;
 use gnuplot::*;
+use std::thread::sleep;
+use std::time::Duration;
 
+/* declare the vector for the State (dependent) variables, and the
+ independent variable, usually time (t).*/
 type State = Vector3<f64>;
 type Time = f64;
 
@@ -37,26 +52,44 @@ fn main() {
     // Initial state. State values of  X, Y, and Z and t0
     let y0 = State::new(QA0, QB0, QT0);
 
-    // Create the structure containing the ODEs.
+    /* declare the system structure (function) name containing the
+    system of ODEs */
     let system = TwoPool;
 
-    // Create a stepper and run the integration.
+    /* the five arguments required for 4th-order Runge-Kutta (RK4) algorithm
+    f - Structure implementing the System trait
+    x - Initial value of the independent variable (usually time)
+    y - Initial value of the dependent variable(s)
+    x_end - Final value of the independent variable
+    step_size - step size used in method */
+
+    /* declare the stepper function and input the necessary RK4Cr
+     method arguments .*/
     let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-1);
 
+    // Execute the stepper function, do integrations and produce results
     let  results = stepper.integrate();
 
-    let  (t,  y_out) = stepper.results().get();
-
- //   y_out[2] = y_out[0] + y_out[1];
-
+    // declare vector to collect output data, primarily for graphing 
+    let (t, y_out) = stepper.results().get();
+    // create new figure (graph)
     let mut fg = Figure::new();
-    fg.axes2d()
-	.lines_points(t.iter(), y_out.iter().map(|y| y[0]), &[Caption("A")])
-	.lines_points(t.iter(), y_out.iter().map(|y| y[1]), &[Caption("B")]);
-	//.lines_points(t.iter(), y_out.iter().map(|y| y[2]), &[Caption("T")]);	
-    fg.save_to_pdf("out.pdf", 4., 3.).unwrap();
 
-    
+    // collect initial values to build graph
+    let y_min = y_out.iter().fold(y_out[0].min(), |x, y| x.min(y.min()));
+    let y_max = y_out.iter().fold(y_out[0].max(), |x, y| x.max(y.max()));
+    // start iteratively producing figure using gnuplot code
+    for i in 0..t.len()
+    {
+	fg.clear_axes();
+	fg.axes2d()
+            .set_x_range(Fix(0.), Fix(t[t.len() - 1]))
+            .set_y_range(Fix(y_min), Fix(y_max))
+            .lines_points(&t[..i], y_out[..i].iter().map(|y| y[0]),&[Caption("A")])
+            .lines_points(&t[..i], y_out[..i].iter().map(|y| y[1]), &[Caption("B")]);
+	fg.show_and_keep_running().unwrap();
+		sleep(Duration::from_millis(10));
+    }
 
     // Handle result.
     match results {
@@ -65,60 +98,32 @@ fn main() {
     }
 }
 
+//declare system function, used by the stepper above
 struct TwoPool;
 
 impl ode_solvers::System<f64, State> for TwoPool {
     fn system(&self, _: Time, y: &State, dy: &mut State) {
+
+	/*calculate the concentration of metabolite in each pool at
+	 each iteration*/
 	let  con_a = y[0] / SA;
 	let  con_b = y[1] / SB;	
 
+	/*calculate fluxes corresponding to arrows on diagram, using a
+	 HMM equation*/
 	let fab  = VAB /  (1.0 + (KAB / con_a));
 	let fba = VBA /  (1.0 + (KBA / con_b));
 	let fbo = VBO /  (1.0 + (KBO / con_b));
 
+	/* specify the differential equations for each of the state
+	variables*/
 	dy[0] = FOA + fba - fab;
 	dy[1] = fab - fba - fbo;
-
+	/*create a third state varible, only to monitor the size of
+	 the total system */
 	let total = y[0] + y[1];
 
-//	&y[2]=y[0]+y[1];
+	// print the outputs of the model at each integration iteration 
 	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);	
-//	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], y[2]);	
     }
 }
-
-/* HMM equation function for fluxes
-fn hmm(vm:f64,km:f64,con:f64) -> f64{
-    let flux:f64 = vm / (1.0 + (km /con ));
-    return flux;
-}
-*/ 
-
-// Initial graph drawing , again from SIR model
-/*fn init_graph() -> Figure {
-    let mut  fg = Figure::new();
-    fg.axes2d()
-        .set_title("Pool A Conc", &[])
-        .set_legend(Graph(1.0), Graph(1.0), &[], &[])
-        .set_x_label("Time", &[])
-        .set_y_label("Pool Conc", &[]);
-    // fg.set_terminal(&"pngcairo", &"test2.png");
-    fg.show();
-    fg
-}
- */
-
-
-/*
-// update graph as it proceeds, from SIR model
-
-//fn update_graph(fg: &mut Figure, s: &[f32], i: &[f32], r: &[f32], d: &[f32], dt: f32) {
-fn update_graph(fg: &mut Figure, con_a: &[f64], con_b: &[f64],  dt: f64) {    
-    let x_axis: &Vec<f64> = &(1..=con_a.len() as i64).map(|x| x as f64 * dt).collect();
-    fg.clear_axes();
-    fg.axes2d()
-        .lines(x_axis, con_a, &[Caption("Con A"), Color("blue")])
-        .lines(x_axis, con_b, &[Caption("Con B"), Color("red")]);
-    fg.show();
-}
-*/
