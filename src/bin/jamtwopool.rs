@@ -121,11 +121,11 @@ impl ode_solvers::System<f64, State> for TwoPool {
 	dy[0] = FOA + fba - fab;
 	dy[1] = fab - fba - fbo;
 	//This is a very crude way of of getting a value for the size
-	// of the total system, don't like recaculating values that
+	// of the total system, don't like recalculating values that
 	// are already calculated!
 	dy[2] = FOA - fbo;
 	
-	/*create a third state varible, only to monitor the size of
+	/*create a third state variable, only to monitor the size of
 	 the total system */
 	//let total = y[0] + y[1];
 
