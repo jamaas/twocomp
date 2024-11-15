@@ -86,7 +86,8 @@ fn main() {
             .set_x_range(Fix(0.), Fix(t[t.len() - 1]))
             .set_y_range(Fix(y_min), Fix(y_max))
             .lines_points(&t[..i], y_out[..i].iter().map(|y| y[0]),&[Caption("A")])
-            .lines_points(&t[..i], y_out[..i].iter().map(|y| y[1]), &[Caption("B")]);
+            .lines_points(&t[..i], y_out[..i].iter().map(|y| y[1]), &[Caption("B")])
+            .lines_points(&t[..i], y_out[..i].iter().map(|y| y[2]), &[Caption("Total")]);	
 	fg.show_and_keep_running().unwrap();
 		sleep(Duration::from_millis(10));
     }
@@ -119,11 +120,16 @@ impl ode_solvers::System<f64, State> for TwoPool {
 	variables*/
 	dy[0] = FOA + fba - fab;
 	dy[1] = fab - fba - fbo;
+	//This is a very crude way of of getting a value for the size
+	// of the total system, don't like recaculating values that
+	// are already calculated!
+	dy[2] = FOA - fbo;
+	
 	/*create a third state varible, only to monitor the size of
 	 the total system */
-	let total = y[0] + y[1];
+	//let total = y[0] + y[1];
 
 	// print the outputs of the model at each integration iteration 
-	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], total);	
+	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], y[2]);	
     }
 }
