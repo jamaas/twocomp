@@ -11,30 +11,7 @@ the accompanying diagram called "Two Pool Model.pdf */
  * Rust, and Dr. Sylvain Renevey for the ode_solver crate */
 
 // First produced by JAM in Norwich UK on 14/11/2024
-// Last updated on 14/11/2024
-
-//Declaration of initial pool sizes and flux rates
-
-const SA:f64=20.0;
-const SB:f64= 25.0;
-const QA0:f64= 6.0;
-const QB0:f64=9.0;
-const QT0:f64=15.0;
- const FOA:f64=7.0;
-
-/* Declaration of kinetic constants for the HMM equations.  A V12
-  variable refers to a VMax for the equation describing a flux from
-  pool "1" to pool "2".  A K12 variable refers to the "affinity
-  constant" for the equation describing a flux from pool "1" to pool
-  "2".
- */
-
-const VAB: f64 = 18.0;
-const VBA: f64 = 13.0;
-const VBO: f64 = 8.0;
-const KAB: f64 = 0.32;
-const KBA: f64 = 0.36;
-const KBO: f64 = 0.31;
+// Last updated on 17/11/2024
 
 // declare the external Rust crates required
 use ode_solvers::rk4::*;
@@ -43,14 +20,30 @@ use gnuplot::*;
 use std::thread::sleep;
 use std::time::Duration;
 
+//Declaration of initial pool sizes and flux rates
+
+//SA=20.0, SB=25.0,QA0= 6.0,QB0=9.0,
+//QT0=15.0, FOA=7.0
+static I:[f64;6] = [20.0, 25.0,6.0,9.0,15.0,7.0];
+
+/* Declaration of kinetic constants for the HMM equations.  A V12
+  variable refers to a VMax for the equation describing a flux from
+  pool "1" to pool "2".  A K12 variable refers to the "affinity
+  constant" for the equation describing a flux from pool "1" to pool
+  "2". */
+
+// VAB = 18.0, VBA = 13.0, VBO = 8.0, KAB = 0.32,
+// KBA = 0.36, KBO = 0.31
+static C: [f64; 6] = [18.0,13.0,8.0,0.32,0.36,0.31];
+
 /* declare the vector for the State (dependent) variables, and the
  independent variable, usually time (t).*/
 type State = Vector3<f64>;
 type Time = f64;
 
 fn main() {
-    // Initial state. State values of  X, Y, and Z and t0
-    let y0 = State::new(QA0, QB0, QT0);
+    // Initial state. State values of  QA0, QB0, QT0
+        let y0 = State::new(I[2], I[3], I[4]);
 
     /* declare the system structure (function) name containing the
     system of ODEs */
@@ -78,6 +71,7 @@ fn main() {
     // collect initial values to build graph
     let y_min = y_out.iter().fold(y_out[0].min(), |x, y| x.min(y.min()));
     let y_max = y_out.iter().fold(y_out[0].max(), |x, y| x.max(y.max()));
+
     // start iteratively producing figure using gnuplot code
     for i in 0..t.len()
     {
@@ -107,27 +101,24 @@ impl ode_solvers::System<f64, State> for TwoPool {
 
 	/*calculate the concentration of metabolite in each pool at
 	 each iteration*/
-	let  con_a = y[0] / SA;
-	let  con_b = y[1] / SB;	
+	let  con_a = y[0] / I[0];
+	let  con_b = y[1] / I[1];	
 
 	/*calculate fluxes corresponding to arrows on diagram, using a
 	 HMM equation*/
-	let fab  = VAB /  (1.0 + (KAB / con_a));
-	let fba = VBA /  (1.0 + (KBA / con_b));
-	let fbo = VBO /  (1.0 + (KBO / con_b));
+	let fab  = C[0] /  (1.0 + (C[3] / con_a));
+	let fba =  C[1] /  (1.0 + (C[4] / con_b));
+	let fbo = C[2] /  (1.0 + (C[5] / con_b));
 
 	/* specify the differential equations for each of the state
 	variables*/
-	dy[0] = FOA + fba - fab;
+	dy[0] = I[5] + fba - fab;
 	dy[1] = fab - fba - fbo;
+
 	//This is a very crude way of of getting a value for the size
 	// of the total system, don't like recalculating values that
 	// are already calculated!
-	dy[2] = FOA - fbo;
-	
-	/*create a third state variable, only to monitor the size of
-	 the total system */
-	//let total = y[0] + y[1];
+	dy[2] = I[5] - fbo;
 
 	// print the outputs of the model at each integration iteration 
 	println!("PoolSizes A={:.3}, B={:.3}, Tot={:.3}", y[0], y[1], y[2]);	
