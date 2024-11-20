@@ -11,7 +11,7 @@ the accompanying diagram called "Two Pool Model.pdf */
  * Rust, and Dr. Sylvain Renevey for the ode_solver crate */
 
 // First produced by JAM in Norwich UK on 14/11/2024
-// Last updated on 19/11/2024
+// Last updated on 20/11/2024
 
 // declare the external Rust crates required
 use ode_solvers::rk4::*;
@@ -121,6 +121,6 @@ impl ode_solvers::System<f64, State> for TwoPool {
 	dy[2] = I[5] - fbo;
 
 	// print the outputs of the model at each integration iteration 
-	println!("PoolSizes t={:.3}, A={:.3}, B={:.3}, Tot={:.3}", time, y[0], y[1], y[2]);	
+	println!("PoolSizes , A={:.3}, B={:.3}, Tot={:.3}",  y[0], y[1], y[2]);	
     }
 }
