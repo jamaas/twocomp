@@ -58,7 +58,8 @@ fn main() {
 
     /* declare the stepper function and input the necessary RK4Cr
      method arguments .*/
-    let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-1);
+    // let mut stepper = Rk4::new(system, 0.0,  y0, 1.0e1, 1.0e-1);
+        let mut stepper = Rk4::new(system, 0.0,  y0, 1.0, 1.0e-1);
 
     // Execute the stepper function, do integrations and produce results
     let  results = stepper.integrate();
@@ -121,6 +122,9 @@ impl ode_solvers::System<f64, State> for TwoPool {
 	dy[2] = I[5] - fbo;
 
 	// print the outputs of the model at each integration iteration 
-	println!("PoolSizes , A={:.3}, B={:.3}, Tot={:.3}",  y[0], y[1], y[2]);	
+	//	println!("PoolSizes , A={:.3}, B={:.3}, Tot={:.3}",  y[0], y[1], y[2]);
+	//	println!("Time={:.2}, PoolSizes  A={:.3}, B={:.3}, Tot={:.3}",  time, y[0], y[1], y[2]);
+	println!("Time={:.2},  Fluxes  FAB={:.2},  FBA={:.2}, FBO={:.2},
+PoolSizes  A={:.3}, B={:.3}, Tot={:.3}",  time, fab,fba,fbo,y[0], y[1], y[2]);	
     }
 }

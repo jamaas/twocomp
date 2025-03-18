@@ -1,0 +1,80 @@
+Time=0.00,  Fluxes  FAB=8.71,  FBA=6.50, FBO=4.30
+PoolSizes  A=6.000, B=9.000, Tot=15.000
+Time=0.05,  Fluxes  FAB=8.89,  FBA=6.46, FBO=4.28
+PoolSizes  A=6.240, B=8.896, Tot=15.135
+Time=0.05,  Fluxes  FAB=8.88,  FBA=6.47, FBO=4.28
+PoolSizes  A=6.229, B=8.907, Tot=15.136
+Time=0.10,  Fluxes  FAB=9.04,  FBA=6.43, FBO=4.26
+PoolSizes  A=6.459, B=8.813, Tot=15.272
+Time=0.10,  Fluxes  FAB=9.04,  FBA=6.43, FBO=4.26
+PoolSizes  A=6.459, B=8.814, Tot=15.272
+Time=0.15,  Fluxes  FAB=9.19,  FBA=6.40, FBO=4.24
+PoolSizes  A=6.678, B=8.731, Tot=15.409
+Time=0.15,  Fluxes  FAB=9.19,  FBA=6.41, FBO=4.24
+PoolSizes  A=6.669, B=8.741, Tot=15.410
+Time=0.20,  Fluxes  FAB=9.33,  FBA=6.38, FBO=4.22
+PoolSizes  A=6.881, B=8.668, Tot=15.548
+Time=0.20,  Fluxes  FAB=9.33,  FBA=6.38, FBO=4.22
+PoolSizes  A=6.880, B=8.668, Tot=15.548
+Time=0.25,  Fluxes  FAB=9.46,  FBA=6.35, FBO=4.21
+PoolSizes  A=7.083, B=8.604, Tot=15.687
+Time=0.25,  Fluxes  FAB=9.45,  FBA=6.36, FBO=4.21
+PoolSizes  A=7.075, B=8.613, Tot=15.688
+Time=0.30,  Fluxes  FAB=9.57,  FBA=6.34, FBO=4.20
+PoolSizes  A=7.271, B=8.556, Tot=15.827
+Time=0.30,  Fluxes  FAB=9.57,  FBA=6.34, FBO=4.20
+PoolSizes  A=7.271, B=8.557, Tot=15.827
+Time=0.35,  Fluxes  FAB=9.69,  FBA=6.32, FBO=4.19
+PoolSizes  A=7.459, B=8.509, Tot=15.967
+Time=0.35,  Fluxes  FAB=9.68,  FBA=6.32, FBO=4.19
+PoolSizes  A=7.452, B=8.516, Tot=15.968
+Time=0.40,  Fluxes  FAB=9.79,  FBA=6.30, FBO=4.18
+PoolSizes  A=7.634, B=8.474, Tot=16.108
+Time=0.40,  Fluxes  FAB=9.79,  FBA=6.30, FBO=4.18
+PoolSizes  A=7.634, B=8.474, Tot=16.109
+Time=0.45,  Fluxes  FAB=9.89,  FBA=6.29, FBO=4.17
+PoolSizes  A=7.810, B=8.440, Tot=16.250
+Time=0.45,  Fluxes  FAB=9.89,  FBA=6.29, FBO=4.17
+PoolSizes  A=7.804, B=8.446, Tot=16.250
+Time=0.50,  Fluxes  FAB=9.99,  FBA=6.28, FBO=4.16
+PoolSizes  A=7.975, B=8.417, Tot=16.391
+Time=0.50,  Fluxes  FAB=9.99,  FBA=6.28, FBO=4.17
+PoolSizes  A=7.974, B=8.417, Tot=16.391
+Time=0.55,  Fluxes  FAB=10.08,  FBA=6.27, FBO=4.16
+PoolSizes  A=8.139, B=8.394, Tot=16.533
+Time=0.55,  Fluxes  FAB=10.07,  FBA=6.28, FBO=4.16
+PoolSizes  A=8.134, B=8.399, Tot=16.533
+Time=0.60,  Fluxes  FAB=10.16,  FBA=6.27, FBO=4.16
+PoolSizes  A=8.295, B=8.381, Tot=16.675
+Time=0.60,  Fluxes  FAB=10.16,  FBA=6.27, FBO=4.16
+PoolSizes  A=8.294, B=8.381, Tot=16.675
+Time=0.65,  Fluxes  FAB=10.24,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.450, B=8.368, Tot=16.818
+Time=0.65,  Fluxes  FAB=10.24,  FBA=6.27, FBO=4.15
+PoolSizes  A=8.445, B=8.372, Tot=16.818
+Time=0.70,  Fluxes  FAB=10.32,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.597, B=8.363, Tot=16.960
+Time=0.70,  Fluxes  FAB=10.32,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.597, B=8.363, Tot=16.960
+Time=0.75,  Fluxes  FAB=10.39,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.744, B=8.358, Tot=17.102
+Time=0.75,  Fluxes  FAB=10.39,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.740, B=8.362, Tot=17.102
+Time=0.80,  Fluxes  FAB=10.46,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.884, B=8.361, Tot=17.245
+Time=0.80,  Fluxes  FAB=10.46,  FBA=6.26, FBO=4.15
+PoolSizes  A=8.884, B=8.361, Tot=17.245
+Time=0.85,  Fluxes  FAB=10.53,  FBA=6.26, FBO=4.15
+PoolSizes  A=9.024, B=8.364, Tot=17.387
+Time=0.85,  Fluxes  FAB=10.53,  FBA=6.26, FBO=4.15
+PoolSizes  A=9.020, B=8.367, Tot=17.387
+Time=0.90,  Fluxes  FAB=10.60,  FBA=6.27, FBO=4.15
+PoolSizes  A=9.157, B=8.372, Tot=17.529
+Time=0.90,  Fluxes  FAB=10.59,  FBA=6.27, FBO=4.15
+PoolSizes  A=9.157, B=8.373, Tot=17.530
+Time=0.95,  Fluxes  FAB=10.66,  FBA=6.27, FBO=4.16
+PoolSizes  A=9.291, B=8.381, Tot=17.672
+Time=0.95,  Fluxes  FAB=10.66,  FBA=6.27, FBO=4.16
+PoolSizes  A=9.288, B=8.384, Tot=17.672
+Time=1.00,  Fluxes  FAB=10.72,  FBA=6.27, FBO=4.16
+PoolSizes  A=9.418, B=8.395, Tot=17.814
